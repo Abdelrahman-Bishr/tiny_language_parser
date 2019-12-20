@@ -1,6 +1,6 @@
 #include "scanner.h"
 
-Scanner::Scanner()
+Scanner::Scanner(QString path)
 {
 
     input=new QTextEdit("ENTER CODE HERE",this);
@@ -9,7 +9,7 @@ Scanner::Scanner()
     output->setReadOnly(true);
     comms->setReadOnly(true);
     startBttn= new QPushButton("Parse",this);
-    scan=new QProcess();
+    scanProcess=new QProcess();
     verLayout=new QVBoxLayout() ;
     horLayout=new QHBoxLayout ();
     this->setLayout(verLayout);
@@ -19,15 +19,29 @@ Scanner::Scanner()
     horLayout->addWidget(comms,Qt::AlignRight);
     verLayout->addLayout(horLayout);
     verLayout->addWidget(startBttn,0,Qt::AlignRight);
-    QString path=QDir::currentPath()+"/scanner.py";
-//    scan->setProgram("python3 "+path);
+    QString p=QDir::currentPath()+"/scanner.py";
+    scanProcess->setProgram("python3 "+p);
+
+    this->path=path;
 
 
 
-    connect(startBttn,SIGNAL(clicked()),this,SIGNAL(start()));
+    connect(startBttn,SIGNAL(clicked()),this,SLOT(scan()));
 }
 
-void Scanner::parse()
+void Scanner::scan()
 {
+    QString inputString=this->input->toPlainText();
+    qDebug()<<"=============================================";
+    qDebug()<<inputString;
+    qDebug()<<"=============================================";
 
+    {
+        fstream cout(path.toStdString().c_str());
+        QStringList in=inputString.split('\n');
+        for(int i=0;i<in.size();i++)
+            cout<<in[i].toStdString()<<endl;
+    }
+
+    emit start();
 }

@@ -8,6 +8,10 @@
 #include <QProcess>
 #include <QDir>
 #include <QDebug>
+#include <bits/stdc++.h>
+
+using namespace std;
+
 class Scanner:public QWidget
 {
     Q_OBJECT
@@ -15,15 +19,16 @@ class Scanner:public QWidget
 signals:
     void start();
 public:
-    Scanner();
+    Scanner(QString path);
 private:
     QTextEdit * input,* comms,*output;
     QPushButton * startBttn;
-    QProcess * scan;
+    QProcess * scanProcess;
     QVBoxLayout * verLayout;
     QHBoxLayout * horLayout;
-
-    void parse();
+    QString path;
+private slots:
+    void scan();
 };
 
 #endif // SCANNER_H

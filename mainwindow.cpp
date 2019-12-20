@@ -3,24 +3,19 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    parser=new Parser();
-    scanner=new Scanner();
-    dummy=new QTimer(this);
-    dummy->setSingleShot(true);
-    dummy->setInterval(200);
-    connect(dummy,SIGNAL(timeout()),parser,SLOT(parse()));
+    parser=new Parser(QDir::currentPath()+"/../parsertest.txt");
+    scanner=new Scanner(QDir::currentPath()+"/../parsertest.txt");
+
     connect(scanner,SIGNAL(start()),this,SLOT(startParser()));
     connect(parser,SIGNAL(newRoot(ParseTree*)),this,SLOT(setRoot(ParseTree*)));
     this->setCentralWidget(scanner);
     root=nullptr;
-//    this->hide();
     view= new QGraphicsView();
     createScene();
     view->show();
     view->setGeometry(50,50,640,480);
-    maxX.push_back(500);
-    minX.push_back(0);
-//    parser->parse();
+    for(int i=0;i<100;i+=2)
+        maxX[i]=-100000;
 }
 
 MainWindow::~MainWindow()
@@ -32,35 +27,20 @@ void MainWindow::setRoot(ParseTree *rootNode)
     root=rootNode;
     cout<<"root is "<<root->value;
     drawChildren(root,0,500,500);
-//    drawChildren(root,0,500);
 
 }
 
 void MainWindow::traverse(ParseTree * root, int level)
 {
     ParseTree * temp=root;
-//    drawChildren(root,0,500,500);
     if(temp->vec.size()!=0){
         cout<<"\n";
         for(vector<ParseTree*>::iterator i = temp->vec.begin();i != temp->vec.end();i++){
-//            print((*i));
-
-//            QPointF p1(80*x++,80*(y+level));
-//            QPointF p2(80*(x++),80*(y+1+level));
-//            x+=2;
-//            QRectF rect(p1,p2);
-//            drawEllipse(rect,QString::fromStdString((*i)->value));
         }
-//        cout<<"\n";
         level++;
         for(vector<ParseTree*>::iterator i = temp->vec.begin();i != temp->vec.end();i++){
             traverse((*i),level+3);
         }
-    }
-    else{
-//        print(temp);
-//        cout<<(temp->type)<<" :: "<<(temp->value);
-//        cout<<"\t";
     }
 }
 
@@ -97,68 +77,47 @@ void MainWindow::drawLine(int x1, int y1, int x2, int y2)
     scene->addLine(x1,y1+40,x2,y2);
 }
 
-//void MainWindow::drawChildren(ParseTree *parent, int level,int x,int y)
-//{
-//    int childCount=parent->vec.size();
-//    QPointF p1(x-80, y +    level  * 80);
-//    QPointF p2(x+80, y + (1+level) * 80);
-//    QRectF rect(p1,p2);
-//    if(parent==nullptr)
-//        qDebug()<<"null parent";
-//    drawEllipse(rect,/*QString::fromStdString((parent)->type)+"\n"+*/QString::fromStdString((parent)->value));
-//    float id=(float)(childCount/2);
-//    int newX;
-//    for(vector<ParseTree*>::iterator i = parent->vec.begin();i != parent->vec.end();i++){
-//        newX=(x+(400*(0.5+(id)-childCount)));
-//        drawLine(x,y+level*80+40,newX,y+(level+2)*80);
-//        drawChildren((*i),level+2,newX,y);
-//        id++;
-//    }
-//}
-
 int MainWindow::drawChildren(ParseTree *parent, int level,int x,int y)
 {
     int childCount=parent->vec.size();
     float id=(float)(childCount/2);
     int newX;
-    int val=x;
-    int shift=0;
+    int chosenX=0;
+    vector <int> childrenX;
+    newX=((x)+(400*(0.5+(id)-childCount)));
+    int temp;
+    //for non terminals , draw their children first
     for(vector<ParseTree*>::iterator i = parent->vec.begin();i != parent->vec.end();i++){
-        newX=(x+(400*(0.5+(id)-childCount)));
-        if(newX-400<maxX[level+2]){
-            shift=400+(maxX[level+2]-newX);
-            newX+=shift;
-            x+=shift;
-            maxX[level]=x-399;
-        }
-        maxX[level+2]=newX;
-        drawLine(x,y+level*80+40,newX,y+(level+2)*80);
-        val=drawChildren((*i),level+2,newX,y);
+        newX=((x)+(400*(0.5+(id)-childCount)));
+        temp=drawChildren((*i),level+2,newX,y);
+        chosenX+=temp;
+        childrenX.push_back(temp);
         id++;
     }
+    id=(float)(childCount/2);
+    if(childCount>0)
+        x=chosenX/childCount;
 
+    //for non terminals only , draw lines connecting them to their children
+    for(vector<int>::iterator i = childrenX.begin();i != childrenX.end();i++){
+        drawLine(x,y+level*80+40,(*i),y+(level+2)*80);
+    }
+    if(x-400<maxX[level]){
+        qDebug()<<"level exceeded";
+        x=maxX[level]+400;
+    }
+    maxX[level]=x;
 
+    //draw node itself
     QPointF p1(x-80, y +    level  * 80);
     QPointF p2(x+80, y + (1+level) * 80);
     QRectF rect(p1,p2);
     if(parent==nullptr)
         qDebug()<<"null parent";
     drawEllipse(rect,/*QString::fromStdString((parent)->type)+"\n"+*/QString::fromStdString((parent)->value));
-    return shift;
+    return x;
 }
 
-
-
-
-//int MainWindow::drawChildren(ParseTree *parent, int level, int x)
-//{
-//    int childCount=parent->vec.size();
-//    x+=400*childCount;
-//    QPointF p1(x-80, y +    level  * 80);
-//    QPointF p2(x+80, y + (1+level) * 80);
-//    QRectF rect(p1,p2);
-
-//}
 
 void MainWindow::createScene()
 {
@@ -167,6 +126,12 @@ void MainWindow::createScene()
     scene->setBackgroundBrush(br);
     view->setScene(scene);
 
+}
+
+void MainWindow::inits()
+{
+    for(int i=0;i<100;i+=2)
+        maxX[i]=-100000;
 }
 
 void MainWindow::startParser()
@@ -178,7 +143,11 @@ void MainWindow::startParser()
     }
     delete scene;
     view->viewport()->update();
-//    dummy->start();
     createScene();
+    inits();
     parser->parse();
+    for(int i=0;i<100;i+=2){
+        if(maxX[i]!=-100000)
+            qDebug()<<maxX[i];
+    }
 }

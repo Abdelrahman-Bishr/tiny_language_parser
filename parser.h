@@ -40,7 +40,7 @@ public:
     }ParseTree;
 
 
-    Parser();
+    Parser(QString path);
 public slots:
     void parse();
 signals:
@@ -49,12 +49,13 @@ private:
     void print(ParseTree* node);
     void print_tree(ParseTree * root);
 
+
     ParseTree* term();
     ParseTree* exp();
     ParseTree* factor();
     ParseTree * IFcon();
     ParseTree* statment();
-
+    QString path;
 
 
     vector< ParseTree* >output;
