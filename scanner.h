@@ -7,10 +7,13 @@
 #include <QHBoxLayout>
 #include <QProcess>
 #include <QDir>
-
+#include <QDebug>
 class Scanner:public QWidget
 {
     Q_OBJECT
+
+signals:
+    void start();
 public:
     Scanner();
 private:

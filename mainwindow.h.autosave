@@ -52,17 +52,14 @@ private:
     QGraphicsEllipseItem * ell;
 
     int level=0;
-    vector <int> maxX;
-    vector <int> minX;
-    int min=0,max=0;
 //    int x=0;
-    map <int,int> x;        // level to coordinate
+    map <int,int> maxX;        // level to coordinate
     void traverse(ParseTree *root,int level);
     void drawEllipse(QRectF rect,QString text);
     void drawRect(QRectF rect,QString text);
     void drawLine(QRectF parent,QRectF Child);
     void drawLine(int x1,int y1,int x2,int y2);
-    void drawChildren(ParseTree * parent,int level,int x,int y);
+    int drawChildren(ParseTree * parent,int level,int x,int y);
 //    void drawChildren(ParseTree * parent, int level, int x, int y);
     void createScene();
 };

@@ -6,8 +6,8 @@ Scanner::Scanner()
     input=new QTextEdit("ENTER CODE HERE",this);
     comms=new QTextEdit("COMMENTS",this);
     output=new QTextEdit("OUTPUT DISPLAYED HERE",this);
-    output->setEnabled(false);
-    comms->setEnabled(false);
+    output->setReadOnly(true);
+    comms->setReadOnly(true);
     startBttn= new QPushButton("Parse",this);
     scan=new QProcess();
     verLayout=new QVBoxLayout() ;
@@ -19,7 +19,12 @@ Scanner::Scanner()
     horLayout->addWidget(comms,Qt::AlignRight);
     verLayout->addLayout(horLayout);
     verLayout->addWidget(startBttn,0,Qt::AlignRight);
-//    scan->setProgram("python3 ")
+    QString path=QDir::currentPath()+"/scanner.py";
+//    scan->setProgram("python3 "+path);
+
+
+
+    connect(startBttn,SIGNAL(clicked()),this,SIGNAL(start()));
 }
 
 void Scanner::parse()
