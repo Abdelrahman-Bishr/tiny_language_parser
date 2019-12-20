@@ -14,7 +14,7 @@ void Parser::parse()
     input.clear();
     errors=0;
     string s,h;
-    QString path= QDir::currentPath()+"/../parsertest.txt";
+    QString path= QDir::currentPath()+"/../parser_gui/parsertest.txt";
     qDebug()<<path;
     {
 //        freopen(path.toStdString().c_str(),"r",stdin);
